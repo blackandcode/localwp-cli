@@ -136,8 +136,10 @@ The release workflow also publishes `SHA256SUMS.txt` so downloaded binaries can 
 Clone this repository and run:
 
 ```cmd
-install.cmd
+.\install-localwp.cmd
 ```
+
+The Windows launcher intentionally uses the unique name `install-localwp.cmd` rather than a generic `install.cmd`, avoiding collisions with tools such as NVM for Windows that may place their own `install.cmd` on `PATH`.
 
 The installer builds the Go CLI and installs it to:
 
@@ -157,7 +159,7 @@ localwp --sites
 Clone the repository, then run:
 
 ```sh
-./install.sh
+./install-localwp.sh
 ```
 
 By default the binary is installed to:

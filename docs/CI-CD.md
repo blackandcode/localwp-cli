@@ -10,6 +10,8 @@ Workflow:
 .github/workflows/ci.yml
 ```
 
+The workflow uses the current Node 24-generation official GitHub Actions (`actions/checkout@v7`, `actions/setup-go@v7`, and `actions/upload-artifact@v6`) so it does not rely on deprecated Node 20 action runtimes.
+
 It runs for pushes, pull requests and manual dispatches.
 
 ### Native matrix
@@ -20,7 +22,7 @@ Tests execute natively on:
 - `macos-latest`
 - `ubuntu-latest`
 
-Each runner uses the latest Go 1.26 patch release with `CGO_ENABLED=0` and performs:
+Each runner uses the Go 1.27.1 with `CGO_ENABLED=0` and performs:
 
 ```sh
 go test ./...
@@ -104,3 +106,5 @@ The workflow:
 7. publishes a GitHub Release using generated release notes.
 
 A release can also be started manually with `workflow_dispatch` for an existing tag.
+
+The release workflow resolves the requested tag before the matrix starts. Manual dispatch validates that the tag exists on GitHub, and all verification/build jobs check out the fully qualified `refs/tags/<tag>` ref. This avoids ambiguity between a branch and tag with the same short name.

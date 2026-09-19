@@ -39,8 +39,10 @@ Requirements:
 Run:
 
 ```cmd
-install.cmd
+.\install-localwp.cmd
 ```
+
+Use the explicit `.\` prefix. The unique launcher name prevents Windows from resolving an unrelated generic `install.cmd` from `PATH` (for example, an NVM for Windows installer).
 
 The installer builds and installs:
 
@@ -69,7 +71,7 @@ Requirements:
 Run:
 
 ```sh
-./install.sh
+./install-localwp.sh
 ```
 
 Default destination:
@@ -81,7 +83,7 @@ Default destination:
 You can choose another destination:
 
 ```sh
-LOCALWP_INSTALL_DIR="$HOME/bin" ./install.sh
+LOCALWP_INSTALL_DIR="$HOME/bin" ./install-localwp.sh
 ```
 
 If the destination is not on `PATH`, add it to your shell profile. Example:
@@ -189,11 +191,11 @@ to confirm the detected DB version, DB port and binary directory.
 Windows:
 
 ```cmd
-uninstall.cmd
+.\uninstall-localwp.cmd
 ```
 
 macOS / Linux:
 
 ```sh
-./uninstall.sh
+./uninstall-localwp.sh
 ```

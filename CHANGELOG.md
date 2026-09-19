@@ -4,9 +4,17 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Changed
+
+- Renamed source installer launchers to `install-localwp.*` / `uninstall-localwp.*` to avoid Windows `PATH` collisions with tools such as NVM for Windows.
+- Updated GitHub Actions to Node 24-generation actions: `actions/checkout@v7`, `actions/setup-go@v7`, and `actions/upload-artifact@v6`.
+- CI and release verification now use Go 1.27.1.
+
 ### Fixed
 
-- Fixed macOS 26 GitHub Actions test crashes (`dyld: missing LC_UUID load command`) by raising the source-build minimum to Go 1.24 and running CI/release verification on Go 1.26.x.
+- Fixed release checkout by resolving the release tag first and checking out the fully qualified `refs/tags/<tag>` ref.
+- Manual release dispatch now validates that the requested tag already exists on GitHub and reports a clear error if it does not.
+- Fixed macOS 26 GitHub Actions test crashes (`dyld: missing LC_UUID load command`) by raising the source-build minimum to Go 1.24 and running CI/release verification on Go 1.27.1.
 - Disabled CGO in the native CI verification jobs for deterministic pure-Go test and build binaries.
 
 ## 1.0.0 - Initial release
