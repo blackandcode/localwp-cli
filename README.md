@@ -111,7 +111,7 @@ For normal use:
 - The target site started in Local for commands that require the database or running services.
 - Windows, macOS, or Linux supported by your installed Local version.
 
-For building or installing **from source**, Go 1.22+ is also required. End users installing a prebuilt GitHub Release binary do not need Go.
+For building or installing **from source**, Go 1.24+ is also required. End users installing a prebuilt GitHub Release binary do not need Go.
 
 ## Installation
 

@@ -34,7 +34,7 @@ Requirements:
 
 - Local
 - Git
-- Go 1.22+
+- Go 1.24+
 
 Run:
 
@@ -64,7 +64,7 @@ Requirements:
 
 - Local
 - Git
-- Go 1.22+
+- Go 1.24+
 
 Run:
 

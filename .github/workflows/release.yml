@@ -22,13 +22,18 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      CGO_ENABLED: '0'
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          # Go 1.24+ emits Mach-O LC_UUID by default; use the latest 1.26 patch
+          # for release verification while preserving macOS 12 compatibility.
+          go-version: '1.26.x'
+          check-latest: true
           cache: true
       - run: go test ./...
       - run: go vet ./...
@@ -58,7 +63,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          # Keep CI on a modern supported toolchain. Go <1.24 can produce
+          # Mach-O binaries without LC_UUID, which macOS 26 rejects.
+          go-version: '1.26.x'
+          check-latest: true
           cache: true
 
       - name: Build release archives

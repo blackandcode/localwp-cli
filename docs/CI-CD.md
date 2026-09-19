@@ -20,7 +20,7 @@ Tests execute natively on:
 - `macos-latest`
 - `ubuntu-latest`
 
-Each runner performs:
+Each runner uses the latest Go 1.26 patch release with `CGO_ENABLED=0` and performs:
 
 ```sh
 go test ./...
@@ -29,6 +29,8 @@ go build -trimpath ./cmd/localwp
 go run ./cmd/localwp --version
 go run ./cmd/localwp --help
 ```
+
+The project minimum is Go 1.24. Go 1.24 changed the macOS linker to emit a Mach-O `LC_UUID` load command by default; older Go toolchains can fail on newer macOS runners with `dyld: missing LC_UUID load command`. CI intentionally uses a newer supported Go line instead of deriving the CI toolchain from the minimum version in `go.mod`.
 
 ### Formatting
 

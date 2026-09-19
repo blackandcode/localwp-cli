@@ -4,7 +4,7 @@ Contributions that improve Local compatibility, platform discovery, tests, diagn
 
 ## Development requirements
 
-- Go 1.22+
+- Go 1.24+
 - Git
 - Local for real integration testing
 

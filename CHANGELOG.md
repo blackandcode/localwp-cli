@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented here.
 
+## Unreleased
+
+### Fixed
+
+- Fixed macOS 26 GitHub Actions test crashes (`dyld: missing LC_UUID load command`) by raising the source-build minimum to Go 1.24 and running CI/release verification on Go 1.26.x.
+- Disabled CGO in the native CI verification jobs for deterministic pure-Go test and build binaries.
+
 ## 1.0.0 - Initial release
 
 ### Added
