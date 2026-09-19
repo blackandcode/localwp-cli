@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing v* tag to publish
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    name: Verify before release
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go test ./...
+      - run: go vet ./...
+
+  release:
+    name: Build and publish GitHub Release
+    needs: verify
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Resolve tag
+        id: tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build release archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG='${{ steps.tag.outputs.tag }}'
+          VERSION="${TAG#v}"
+          mkdir -p dist work
+
+          build_target() {
+            GOOS="$1"
+            GOARCH="$2"
+            NAME="localwp_${VERSION}_${GOOS}_${GOARCH}"
+            DIR="work/$NAME"
+            mkdir -p "$DIR"
+
+            EXT=""
+            [ "$GOOS" = "windows" ] && EXT=".exe"
+
+            env GOOS="$GOOS" GOARCH="$GOARCH" CGO_ENABLED=0 \
+              go build -trimpath \
+                -ldflags "-s -w -X main.version=$VERSION" \
+                -o "$DIR/localwp$EXT" ./cmd/localwp
+
+            cp LICENSE README.md "$DIR/"
+
+            if [ "$GOOS" = "windows" ]; then
+              (cd work && zip -qr "../dist/${NAME}.zip" "$NAME")
+            else
+              tar -C work -czf "dist/${NAME}.tar.gz" "$NAME"
+            fi
+          }
+
+          build_target windows amd64
+          build_target linux amd64
+          build_target linux arm64
+          build_target darwin amd64
+          build_target darwin arm64
+
+          (cd dist && sha256sum * > SHA256SUMS.txt)
+
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          gh release create '${{ steps.tag.outputs.tag }}' dist/* \
+            --verify-tag \
+            --generate-notes \
+            --title "localwp ${{ steps.tag.outputs.tag }}"

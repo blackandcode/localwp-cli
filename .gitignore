@@ -1,0 +1,19 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Builds / releases
+/localwp
+/localwp.exe
+dist/
+work/
+*.test
+*.out
+
+# Coverage / temporary output
+coverage/
+*.log
+*.tmp
+*.bak

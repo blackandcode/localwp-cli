@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Unit tests
+        run: go test ./...
+
+      - name: Go vet
+        run: go vet ./...
+
+      - name: Build native binary
+        run: go build -trimpath ./cmd/localwp
+
+      - name: CLI smoke test
+        run: go run ./cmd/localwp --version
+
+      - name: CLI help smoke test
+        run: go run ./cmd/localwp --help
+
+  format:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Verify gofmt
+        shell: bash
+        run: |
+          files="$(gofmt -l .)"
+          if [ -n "$files" ]; then
+            echo "These files need gofmt:"
+            echo "$files"
+            exit 1
+          fi
+
+  cross-build:
+    name: Cross-build release targets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build all supported targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          for target in \
+            windows/amd64 \
+            linux/amd64 \
+            linux/arm64 \
+            darwin/amd64 \
+            darwin/arm64
+          do
+            GOOS="${target%/*}"
+            GOARCH="${target#*/}"
+            ext=""
+            [ "$GOOS" = "windows" ] && ext=".exe"
+            echo "Building $GOOS/$GOARCH"
+            env GOOS="$GOOS" GOARCH="$GOARCH" CGO_ENABLED=0 \
+              go build -trimpath -o "dist/localwp-${GOOS}-${GOARCH}${ext}" ./cmd/localwp
+          done
+
+      - name: Upload cross-build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: localwp-cross-builds
+          path: dist/
