@@ -84,3 +84,9 @@ LOCALWP_MYSQL_BIN_DIR
 ```
 
 The production default remains automatic Local discovery.
+
+## Release installation and agent routing
+
+The `installation/install-release.ps1` and `installation/install-release.sh` helpers download the latest published GitHub Release for a supported platform, verify its archive against that release's `SHA256SUMS.txt`, and install only the CLI in the user's bin directory. Windows updates User PATH; the POSIX helper updates Bash/zsh startup files. They do not bundle or install Local or its runtimes. Root-level `install-localwp.*` scripts remain source-build tools for contributors.
+
+The consumer agent skill requires `localwp` only when the current environment has Local installed, the intended Local site is active, and the wrapper is on PATH. It allows a configured `wp` fallback when the wrapper is unavailable, including CI and remote environments. This is agent guidance; the CLI's site selection and execution behavior are unchanged.

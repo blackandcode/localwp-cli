@@ -4,13 +4,11 @@
 
 ## Agent rule
 
-When a WordPress project is running in Local, prefer:
+Check PATH with `where.exe localwp` on Windows or `which localwp` (or `command -v localwp`) on macOS/Linux. Confirm Local is installed in the current environment and the intended site is registered and running using `localwp --sites` and `localwp --local-site "Site Name" --doctor`.
 
-```text
-localwp <WP-CLI arguments>
-```
+When those conditions hold, always use `localwp <WP-CLI arguments>` for the Local site. If the wrapper is unavailable, use `wp <WP-CLI arguments>` only when WP-CLI is installed and configured for the intended target, including in CI/CD, remote containers, or headless servers. If neither is available, report the missing prerequisite.
 
-over direct `wp` execution.
+A stopped Local site should be started and rechecked; do not use fallback to bypass a Local runtime or selection failure. Non-Local targets use their own configured WP-CLI environment even when the wrapper is on PATH.
 
 Examples:
 
@@ -20,7 +18,11 @@ localwp theme list --format=json
 localwp option get siteurl
 localwp core version
 localwp cache flush
+localwp aws-backend-api request --help
+localwp aws-backend-api logs --help
 ```
+
+The `aws-backend-api` examples require a plugin that registers those commands. Inspect its help for supported request and log arguments.
 
 This rule is the same on Windows, macOS, and Linux.
 

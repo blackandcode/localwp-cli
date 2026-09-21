@@ -8,6 +8,55 @@ Contributions that improve Local compatibility, platform discovery, tests, diagn
 - Git
 - Local for real integration testing
 
+## Build and install from source
+
+End users should use the [release installation guide](installation/README.md). For development, clone and build your checkout:
+
+```sh
+git clone https://github.com/blackandcode/localwp-cli.git
+cd localwp-cli
+go build -o localwp ./cmd/localwp
+```
+
+On Windows, use `go build -o localwp.exe ./cmd/localwp`.
+
+### Windows
+
+From the repository root:
+
+```cmd
+.\install-localwp.cmd
+```
+
+This builds the checkout, installs `%LOCALAPPDATA%\localwp-cli\bin\localwp.exe`, and adds the folder to your User PATH. Use the explicit `.\` prefix to select this repository's launcher. Close and reopen the terminal application and editor afterward.
+
+### macOS and Linux
+
+From the repository root:
+
+```sh
+sh ./install-localwp.sh
+```
+
+This builds into `~/.local/bin/localwp`. To choose a different directory:
+
+```sh
+LOCALWP_INSTALL_DIR="$HOME/bin" sh ./install-localwp.sh
+```
+
+If needed, add `export PATH="$HOME/.local/bin:$PATH"` to your shell startup file (for example `~/.zshrc` for zsh or `~/.bashrc` for interactive Bash) and open a new terminal. Use your chosen directory if you changed the default.
+
+### Verify
+
+```sh
+localwp --version
+localwp --sites
+```
+
+Start your development site in Local, move into its project directory, and run `localwp --doctor` followed by `localwp plugin list`.
+
+The root `install-localwp.*` scripts build from source. The separate `installation/install-release.*` helpers download published binaries and do not require Go.
+
 ## Before opening a pull request
 
 Run:

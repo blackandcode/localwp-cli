@@ -12,93 +12,11 @@ https://localwp.com/
 
 Create or import at least one WordPress site and make sure Local can start it normally.
 
-## Install a prebuilt localwp binary
+## Install localwp
 
-GitHub Releases are the preferred end-user installation method because they do not require Go.
+Follow the [guided release installation](../installation/README.md#guided-installation) for Windows or macOS/Linux. The helpers download a published binary, verify its checksum, and configure PATH for supported shells. No Go or Git is required.
 
-Choose the archive matching your platform and CPU:
-
-- `windows_amd64`
-- `darwin_amd64` for Intel Macs
-- `darwin_arm64` for Apple Silicon Macs
-- `linux_amd64`
-- `linux_arm64`
-
-Extract the archive and put `localwp` or `localwp.exe` in a directory on `PATH`.
-
-Each release contains a `SHA256SUMS.txt` file for integrity verification.
-
-## Install from source: Windows
-
-Requirements:
-
-- Local
-- Git
-- Go 1.24+
-
-Run:
-
-```cmd
-.\install-localwp.cmd
-```
-
-Use the explicit `.\` prefix. The unique launcher name prevents Windows from resolving an unrelated generic `install.cmd` from `PATH` (for example, an NVM for Windows installer).
-
-The installer builds and installs:
-
-```text
-%LOCALAPPDATA%\localwp-cli\bin\localwp.exe
-```
-
-and adds the directory to your User PATH.
-
-Open a **new** terminal after installation:
-
-```cmd
-where localwp
-localwp --version
-localwp --sites
-```
-
-## Install from source: macOS / Linux
-
-Requirements:
-
-- Local
-- Git
-- Go 1.24+
-
-Run:
-
-```sh
-./install-localwp.sh
-```
-
-Default destination:
-
-```text
-~/.local/bin/localwp
-```
-
-You can choose another destination:
-
-```sh
-LOCALWP_INSTALL_DIR="$HOME/bin" ./install-localwp.sh
-```
-
-If the destination is not on `PATH`, add it to your shell profile. Example:
-
-```sh
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-Then open a new terminal and verify:
-
-```sh
-command -v localwp
-localwp --version
-localwp --sites
-```
+The same guide documents [what the helpers change](../installation/README.md#what-the-helpers-change), [manual installation and PATH setup](../installation/README.md#manual-installation-advanced-users), updates, and uninstalling. Developers building from source should use [Contributing](../CONTRIBUTING.md#build-and-install-from-source).
 
 ## First real command
 
@@ -188,14 +106,4 @@ to confirm the detected DB version, DB port and binary directory.
 
 ## Uninstall
 
-Windows:
-
-```cmd
-.\uninstall-localwp.cmd
-```
-
-macOS / Linux:
-
-```sh
-./uninstall-localwp.sh
-```
+See [uninstall instructions](../installation/README.md#troubleshooting-and-uninstalling). If you have a development checkout, the root `uninstall-localwp.cmd` (Windows) and `uninstall-localwp.sh` (macOS/Linux) scripts are also available.

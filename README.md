@@ -24,6 +24,24 @@ No manual Site Shell hopping. No guessing which PHP version belongs to the proje
 [![WP-CLI](https://img.shields.io/badge/powered%20by-WP--CLI-21759b)](https://wp-cli.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
+## Requirements
+
+- [Local](https://localwp.com/) installed on a supported Windows, macOS, or Linux computer.
+- A WordPress site created or imported into Local. Start the site before running commands.
+- An internet connection to download the release. No Go or programming tools are needed.
+
+## Installation
+
+Install the ready-to-use binary from [GitHub Releases](https://github.com/blackandcode/localwp-cli/releases/latest) using the helper for your computer:
+
+1. Open the [installation guide](installation/README.md#guided-installation) and follow the Windows or macOS/Linux steps.
+2. Download and run the linked installer: [Windows PowerShell](installation/install-release.ps1) or [macOS/Linux](installation/install-release.sh). It downloads the latest release, verifies its checksum, and adds the install folder to **PATH** for supported shells.
+3. Close and reopen your terminal (and your editor if using its terminal), then run `localwp --version`.
+
+PATH is the list of folders your computer searches when you type a command. The helper sets it up so you can type `localwp` from any project folder.
+
+The [installation README](installation/README.md) explains exactly what the scripts change, how to review them before running, and [manual installation for advanced users](installation/README.md#manual-installation-advanced-users).
+
 ## The problem it solves
 
 Local already gives each site a correctly configured Site Shell. That is useful interactively, but it becomes repetitive when your normal workflow already happens in Terminal, Windows Terminal, VS Code, Cursor, Claude Code, Codex, or another coding environment.
@@ -101,83 +119,6 @@ localwp <command>
 ```
 
 when the WordPress project runs in Local.
-
-## Requirements
-
-For normal use:
-
-- [Local](https://localwp.com/) installed.
-- A WordPress site created/imported into Local.
-- The target site started in Local for commands that require the database or running services.
-- Windows, macOS, or Linux supported by your installed Local version.
-
-For building or installing **from source**, Go 1.24+ is also required. End users installing a prebuilt GitHub Release binary do not need Go.
-
-## Installation
-
-### Option 1: GitHub Release binary
-
-Every version tag is built by GitHub Actions for:
-
-| OS | Architecture |
-| --- | --- |
-| Windows | x86-64 / amd64 |
-| macOS | Intel / amd64 |
-| macOS | Apple Silicon / arm64 |
-| Linux | x86-64 / amd64 |
-| Linux | arm64 |
-
-Download the archive for your platform from **Releases**, extract `localwp` (`localwp.exe` on Windows), and place it in a directory on your `PATH`.
-
-The release workflow also publishes `SHA256SUMS.txt` so downloaded binaries can be verified.
-
-### Option 2: Install from source on Windows
-
-Clone this repository and run:
-
-```cmd
-.\install-localwp.cmd
-```
-
-The Windows launcher intentionally uses the unique name `install-localwp.cmd` rather than a generic `install.cmd`, avoiding collisions with tools such as NVM for Windows that may place their own `install.cmd` on `PATH`.
-
-The installer builds the Go CLI and installs it to:
-
-```text
-%LOCALAPPDATA%\localwp-cli\bin\localwp.exe
-```
-
-It also adds that directory to your **User PATH**. Open a new terminal and verify:
-
-```cmd
-localwp --version
-localwp --sites
-```
-
-### Option 3: Install from source on macOS or Linux
-
-Clone the repository, then run:
-
-```sh
-./install-localwp.sh
-```
-
-By default the binary is installed to:
-
-```text
-~/.local/bin/localwp
-```
-
-If `~/.local/bin` is not already on `PATH`, the installer prints the exact line to add to your shell profile.
-
-Verify:
-
-```sh
-localwp --version
-localwp --sites
-```
-
-See [Installation](docs/INSTALLATION.md) for full setup and troubleshooting instructions.
 
 ## How site detection works
 
@@ -263,6 +204,8 @@ Each command:
 4. returns stdout/stderr and the WP-CLI process exit code;
 5. terminates normally.
 
+The [agent skill](skills/localwp-cli/SKILL.md) checks that Local is installed and the intended site is running before requiring `localwp`. It checks PATH and falls back to `wp` when the wrapper is unavailable in a correctly configured environment, such as CI or a remote container. A stopped Local site should be started before proceeding.
+
 This repository includes an agent skill at:
 
 ```text
@@ -338,23 +281,30 @@ LOCALWP_SKIP_RUNNING_CHECK
 
 Most users never need to set them.
 
-## Development
+## Development and contribution
 
-Run the full local checks:
+Building from source is for contributors and requires **Git and Go 1.24+**. Clone the repository, then build:
 
 ```sh
-make check
+git clone https://github.com/blackandcode/localwp-cli.git
+cd localwp-cli
+go build -o localwp ./cmd/localwp
 ```
 
-or directly:
+On Windows, use `go build -o localwp.exe ./cmd/localwp`.
+
+To build and install your checkout, run `.\install-localwp.cmd` on Windows or `sh ./install-localwp.sh` on macOS/Linux. The Windows helper adds `%LOCALAPPDATA%\localwp-cli\bin` to your User PATH; the macOS/Linux helper installs to `~/.local/bin` and prints PATH instructions if needed.
+
+Run the checks before submitting a change:
 
 ```sh
+gofmt -w ./cmd ./internal
 go test ./...
 go vet ./...
 go build ./cmd/localwp
 ```
 
-See [Contributing](CONTRIBUTING.md).
+See [Contributing](CONTRIBUTING.md) for source installation, validation, and cross-platform testing.
 
 ## Project status
 

@@ -1,25 +1,23 @@
 ---
 name: localwp-cli
-description: Use WP-CLI safely and non-interactively against WordPress sites managed by Local on Windows, macOS, or Linux. Use when a project runs in Local and the agent needs WordPress inspection, plugin/theme operations, option/cache operations, database-aware WP-CLI commands, or Local runtime diagnostics.
+description: Run WP-CLI operations targeting Local WordPress (LocalWP, Local by Flywheel) on Windows, macOS, or Linux. Trigger for wp commands, plugin/theme management, core, options, cache, users, database export or search-replace, and custom aws-backend-api request/logs commands in Local projects. Detect an installed Local app and an active target site, use localwp when available on PATH, and use wp in configured environments without the wrapper such as CI/CD, remote containers, or headless servers.
 ---
 
 # LocalWP CLI
 
-Use `localwp` for WP-CLI operations when the WordPress development site is managed by [Local](https://localwp.com/).
+Use this workflow for WP-CLI work targeting a Local WordPress development site. A WordPress repository alone does not establish that Local is installed or that the target site is active.
 
-This rule applies on Windows, macOS, and Linux.
+## Runtime detection and command choice
 
-## Core rule
+1. Check whether the wrapper is available on PATH:
+   - Windows: `where.exe localwp` (use the executable name explicitly in PowerShell).
+   - macOS/Linux: `which localwp` (or `command -v localwp` if `which` is unavailable).
+2. Confirm Local is installed in the current execution environment and the intended project is registered with it. When the wrapper is available, run `localwp --sites`, match the site's path/name/domain to the requested project, and check its running state. Use `localwp --local-site "Site Name" --doctor` to inspect the selected runtime and running state. The mere presence of `localwp` on PATH is not proof of an active Local site.
+3. **When Local is installed, the intended site is active, and the wrapper is available, always use `localwp <args>` for that site's WP-CLI operations.** Prefer running inside the target site tree; use `--local-site` when needed to avoid selecting a different running site.
+4. **When `localwp` is unavailable, fall back to `wp <args>`** if WP-CLI is available and configured for the intended WordPress installation. This includes CI/CD, remote containers, and headless servers. Check `where.exe wp` on Windows or `which wp` / `command -v wp` on POSIX and confirm the target working directory or explicit `--path`. A host's Local installation does not make a container or remote server a Local environment. If neither command is usable, report the missing prerequisite; do not automatically install software.
+5. For a known Local site that is stopped, start it within the authorized workflow or ask the user to start it, then recheck. Do not switch to `wp` merely to bypass a stopped site, a selection error, or a broken Local runtime. For non-Local targets, use their configured `wp` command even if `localwp` happens to be installed.
 
-Use:
-
-```text
-localwp <wp-cli arguments>
-```
-
-instead of invoking `wp` directly when the task targets the Local-managed WordPress project.
-
-Do not enter an interactive Local Site Shell for ordinary WP-CLI work.
+Keep ordinary WP-CLI execution non-interactive. Preserve argument boundaries and check the process exit code. Do not enter a Local Site Shell for ordinary commands.
 
 ## Examples
 
@@ -31,7 +29,11 @@ localwp theme list --format=json
 localwp option get siteurl
 localwp cache flush
 localwp plugin activate my-plugin
+localwp aws-backend-api request --help
+localwp aws-backend-api logs --help
 ```
+
+For a site that registers the custom `aws-backend-api` command, inspect its help first, then run `localwp aws-backend-api request <documented arguments>` or `localwp aws-backend-api logs <documented arguments>`. These are plugin-provided commands, not built-in WordPress or wrapper commands; do not invent endpoint, payload, or log flags.
 
 Treat everything after `localwp` as normal WP-CLI arguments except the documented `localwp` wrapper options.
 
